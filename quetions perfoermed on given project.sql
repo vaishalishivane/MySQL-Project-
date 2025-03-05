@@ -6,7 +6,7 @@ select * from staff;
 select * from members ;
 select * from books ;
 
-#Advanced SQL Features
+
 #Creating Views
 
 #Create a view named BorrowingDetailsView that joins the Books, Members, and BorrowingRecords tables.
@@ -17,7 +17,7 @@ select title ,name, borrowdate,returndate from books inner join members on books
 select * from  v1;
 
 #store procedure quections
- # new book to the library,which accepts the book title, author, category, and stock as parameters.
+# new book to the library,which accepts the book title, author, category, and stock as parameters.
 
 delimiter $$ 
 create procedure insert_ne_data( in id int  ,in ti varchar(255) ,in a varchar(255),in cd int ,in st  int) 
@@ -236,18 +236,8 @@ end $$
 delimiter ;
 
 
-#  Before deleting, ensure there are no borrowing records for the book. If there are borrowing records, prevent deletion and return a message.
 
-
-#2.Write a trigger that prevents borrowing a book if the Stock is 0. The trigger should raise an error message if a member attempts to borrow a book with no stock available.   
-
-#Triggers
-
-#Create a trigger that automatically updates the Stock column in the Books table when a book is borrowed (decreases stock) or returned (increases stock).
-#Write a trigger that prevents the deletion of a book record if there are any borrowing records associated with it.
-
-#Reporting and Insights
-#Most Borrowed Books Report
+ 
 
 #Write a SQL query to generate a report of the most borrowed books. Include the book title and the number of times it has been borrowed, sorted by the highest number of borrowings.
 SELECT Books.Title, COUNT(BorrowingRecords.BookID) AS BorrowCount
@@ -256,16 +246,6 @@ JOIN Books ON BorrowingRecords.BookID = Books.BookID
 GROUP BY Books.Title
 ORDER BY BorrowCount DESC
 LIMIT 5;
-
-
-
-
-
-
-
-
-
-
 
 
 #join query 
@@ -285,6 +265,10 @@ FROM BorrowingRecords
 JOIN Members ON BorrowingRecords.MemberID = Members.MemberID
 JOIN Books ON BorrowingRecords.BookID = Books.BookID
 WHERE ReturnDate < CURDATE();
+
+
+
+
 
 #4. Stored Procedure to Return a Book
 DELIMITER //
@@ -306,6 +290,7 @@ END //
 
 DELIMITER ;
 #CALL ReturnBook(2);
+
 
 
 
