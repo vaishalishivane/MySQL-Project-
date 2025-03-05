@@ -1,22 +1,71 @@
 #### Library Mangement System ###########
 use college ;
 #  quetions performed on project 
-select * from categories;
-select * from staff;
-select * from members ;
-select * from books ;
 
 
-#Creating Views
+##CRUD OPERATION FOR BOOK TABLE
+#Add a New Book
+INSERT INTO Books (BookID, Title, Author, CategoryID, Stock) 
+VALUES (21, 'The Power of Habit', 'Charles Duhigg', 17, 10);
 
-#Create a view named BorrowingDetailsView that joins the Books, Members, and BorrowingRecords tables.
- #The view should show the book title, member name, borrow date, and return date for each borrowing record.
+#View All Books
+SELECT * FROM Books;
+
+#Update Book Details
+UPDATE Books 
+SET Title = 'The Power of Habit - Revised', Stock = 12 
+WHERE BookID = 21;
+
+#Delete a Book
+DELETE FROM Books WHERE BookID = 21;
+
+
+##CRUD Operations for the Members Table
+#ADD NEW MEMBER 
+INSERT INTO Members (MemberID, Name, Email, MemberType, Phone) 
+VALUES (21, 'Krishna Sharma', 'krishna.sharma@example.com', 'Student', '9876543250');
+
+#View All Members
+SELECT * FROM Members;
+
+#Update Member Details
+UPDATE Members 
+SET Name = 'Krishna S. Sharma', Phone = '9876543251' 
+WHERE MemberID = 21;
+
+#Delete a Member
+DELETE FROM Members WHERE MemberID = 21;
+
+
+##CRUD Operations for the BorrowingRecords Table
+#Add a New Borrowing Record
+INSERT INTO BorrowingRecords (BookID, MemberID, BorrowDate, ReturnDate) 
+VALUES (6, 15, '2025-02-25', NULL);
+
+
+#View All Borrowing Records
+SELECT * FROM BorrowingRecords;
+
+#Update Borrowing Record (Return Book)
+UPDATE BorrowingRecords SET ReturnDate = NULL WHERE RecordID = 13; -- Use the correct RecordID
+
+#Delete a Borrowing Record
+DELETE FROM BorrowingRecords WHERE RecordID = 16;
+
+
+
+
+#view
+#Create a view named BorrowingDetailsView that joins the Books, Members, and BorrowingRecords tables.The view should show the book title, member name, borrow date, and return date for each borrowing record.
 
 create view v1 as
 select title ,name, borrowdate,returndate from books inner join members on books.bookid =members.memberid inner join BorrowingRecords on books.bookid=BorrowingRecords.recordid;
 select * from  v1;
 
-#store procedure quections
+
+
+
+#store procedure 
 # new book to the library,which accepts the book title, author, category, and stock as parameters.
 
 delimiter $$ 
@@ -44,11 +93,12 @@ call insert_ne_data (23 ,"the end of imagination", "arundhati roy",17,50);
  delimiter ;
  set sql_safe_updates=0;
  call  update_phone(5,9890459945);
- 
 
+
+#transation 
  
 #Write an SQL transaction that borrows a book: decrement the stock in the Books table, add a new record in the BorrowingRecords table, and ensure the transaction is atomic (i.e., rollback if any part of the operation fails).
-#Transaction for Returning
+
 start transaction;
 update books set stock =stock-1  where bookid=5;
 insert into  borrowingrecords (bookid,memberid,borrowdate,returndate) values (5,5,curdate(),"2025-03-15");
@@ -77,7 +127,7 @@ insert into  borrowingrecords (bookid,memberid,borrowdate,returndate) values (8,
 savepoint y1;
 
 
-#store procedure for borrowing record and return record 
+
 #store procedure for decrement stock in books table 
 delimiter $$
 create procedure dec_stock_by_one(bd int )
@@ -103,14 +153,14 @@ delimiter ;
 
 
  
-  call insert_borro_record(6,6,now(),"2025-04-03");
+ call insert_borro_record(6,6,now(),"2025-04-03");
  call insert_borro_record(6,3,now(),"2025-03-13");
-  call insert_borro_record(5,2,now(),"2025-03-15");
+ call insert_borro_record(5,2,now(),"2025-03-15");
 
 
 #store procedure for increment stock in books table 
 
- delimiter $$
+delimiter $$
 create procedure inc_stock_by_one(bd int )
 begin 
 update books set stock=stock+1 where bookid=bd;
@@ -125,7 +175,7 @@ call inc_stock_by_one(5);
 #store procedure for insert the returntime in borrowing record table 
 
 delimiter $$ 
-create procedure insert_return_record  (in bd int ,md int ,bodate date ,ret_date datetime    )
+create procedure insert_return_record(in bd int ,md int ,bodate date ,ret_date datetime)
 begin 
 insert into borrowingrecords (bookid ,memberid,borrowdate,returndate) values (bd,md,bodate,ret_date) ;
 end $$
@@ -134,8 +184,7 @@ call insert_return_record(6,6,"2025-02-28",now());
 call insert_return_record(6,3,"2025-02-28",now());
 call insert_return_record(5,2,"2025-02-28",now());
 
-
-# stored procedure quetions 
+  
 # 1. Create a Stored Procedure to Add a New Book
 delimiter $$
 create procedure add_new_book (in id int ,in ti varchar(80), in au varchar(80) ,in ci int ,in stk int )
@@ -150,15 +199,15 @@ call add_new_book (24,"harry potter ","j.k. crawling ", 21,100);
 #2. Create a Stored Procedure to Update Member Information
 #This stored procedure will update a member's information (e.g., name or contact) in the Members table.
 desc members;
- delimiter $$ 
- create procedure update_member_info (in id int  ,in ph bigint,in na varchar(80),in ema varchar(80))
- begin 
- update members set phone=ph ,name =na,email=ema  where memberid=id;
- end $$
- delimiter ;
- call  update_member_info(1,789451689,"arav gupta","aravgupta18@gmaill.com ");
-  call  update_member_info(4,249461649,"achary chanakya ","achary chanakya 78@gmaill.com ");
- call  update_member_info(12,189451689,"vaishali shivane ","vaishalishivane 18@gmaill.com ");
+delimiter $$ 
+create procedure update_member_info (in id int  ,in ph bigint,in na varchar(80),in ema varchar(80))
+begin 
+update members set phone=ph ,name =na,email=ema  where memberid=id;
+end $$
+delimiter ;
+call  update_member_info(1,789451689,"arav gupta","aravgupta18@gmaill.com ");
+call  update_member_info(4,249461649,"achary chanakya ","achary chanakya 78@gmaill.com ");
+call  update_member_info(12,189451689,"vaishali shivane ","vaishalishivane 18@gmaill.com ");
 set sql_safe_updates =0;
 
 
@@ -166,10 +215,8 @@ set sql_safe_updates =0;
 #create store procedure for delete a book 
 delimiter $$
 create procedure dlt(in book_id int )
-
 begin
 delete from books where bookid=book_id ; 
-
 end $$
 delimiter ;
 call dlt(22);
@@ -192,7 +239,7 @@ call update_book  (8,7000);
 
 
 
-#1. Stored Procedure to Add a New Category
+#. Stored Procedure to Add a New Category
 select * from categories;
 delimiter %%
 create procedure add_category (in ci int ,cn varchar(30))
@@ -204,7 +251,7 @@ delimiter ;
 insert into categories  values (22 ,"storytales");
 
 
-#2. Stored Procedure to Update a Category Name
+#. Stored Procedure to Update a Category Name
 delimiter $$ 
 create procedure  update_category_name ( cid int ,in cat_name varchar (255))
 begin
@@ -215,7 +262,7 @@ delimiter ;
 call   update_category_name(22 ,"fairytales");
 
 
-# 3. Stored Procedure to Delete a Category
+# . Stored Procedure to Delete a Category
 delimiter $$
 create procedure dlt_category (in id int ) 
 begin 
@@ -270,7 +317,7 @@ WHERE ReturnDate < CURDATE();
 
 
 
-#4. Stored Procedure to Return a Book
+#. Stored Procedure to Return a Book
 DELIMITER //
 CREATE PROCEDURE ReturnBook(
     IN p_RecordID INT
@@ -294,7 +341,7 @@ DELIMITER ;
 
 
 
-#3. Stored Procedure to Issue a Book (Borrowing a Book)
+#. Stored Procedure to Issue a Book (Borrowing a Book)
 DELIMITER //
 CREATE PROCEDURE IssueBookwithmsg(
     IN p_BookID INT,
