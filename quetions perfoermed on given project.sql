@@ -5,52 +5,62 @@ use college ;
 
 ##CRUD OPERATION FOR BOOK TABLE
 #Add a New Book
-INSERT INTO Books (BookID, Title, Author, CategoryID, Stock) 
-VALUES (21, 'The Power of Habit', 'Charles Duhigg', 17, 10);
+insert into Books (BookID, Title, Author, CategoryID, Stock) 
+values (21, 'The Power of Habit', 'Charles Duhigg', 17, 10);
 
 #View All Books
 SELECT * FROM Books;
 
 #Update Book Details
-UPDATE Books 
-SET Title = 'The Power of Habit - Revised', Stock = 12 
-WHERE BookID = 21;
+update Books 
+set Title = 'The Power of Habit - Revised', Stock = 12 
+where BookID = 21;
 
 #Delete a Book
-DELETE FROM Books WHERE BookID = 21;
+delete from Books where BookID = 21;
 
 
 ##CRUD Operations for the Members Table
-#ADD NEW MEMBER 
-INSERT INTO Members (MemberID, Name, Email, MemberType, Phone) 
-VALUES (21, 'Krishna Sharma', 'krishna.sharma@example.com', 'Student', '9876543250');
+#add new member 
+insert into  Members (MemberID, Name, Email, MemberType, Phone) 
+values  (21, 'Krishna Sharma', 'krishna.sharma@example.com', 'Student', '9876543250');
 
 #View All Members
 SELECT * FROM Members;
 
 #Update Member Details
-UPDATE Members 
-SET Name = 'Krishna S. Sharma', Phone = '9876543251' 
-WHERE MemberID = 21;
+Update Members 
+set Name = 'Krishna S. Sharma', Phone = '9876543251' 
+where MemberID = 21;
 
 #Delete a Member
-DELETE FROM Members WHERE MemberID = 21;
+delete from  Members where MemberID = 21;
 
 
 ##CRUD Operations for the BorrowingRecords Table
 #Add a New Borrowing Record
-INSERT INTO BorrowingRecords (BookID, MemberID, BorrowDate, ReturnDate) 
-VALUES (6, 15, '2025-02-25', NULL);
+ 
+insert into BorrowingRecords (BookID, MemberID, BorrowDate, ReturnDate) 
+values (6, 15, '2025-02-25', NULL);
 
 
 #View All Borrowing Records
-SELECT * FROM BorrowingRecords;
 
 #Update Borrowing Record (Return Book)
-UPDATE BorrowingRecords SET ReturnDate = NULL WHERE RecordID = 13; -- Use the correct RecordID
+Update BorrowingRecords SET ReturnDate = NULL WHERE RecordID = 13; -- Use the correct RecordID
 
 #Delete a Borrowing Record
-DELETE FROM BorrowingRecords WHERE RecordID = 16;
+Delete from  BorrowingRecords where RecordID = 16;
+
+
+
+
+
+# inner join 
+select title,author ,stock,borrowdate,name ,email  
+from books inner join borrowingrecords on books.bookid= borrowingrecords.RecordID
+ inner join members on
+ books.BookID=members.MemberID;
 
 
 
@@ -85,6 +95,7 @@ call insert_ne_data (23 ,"the end of imagination", "arundhati roy",17,50);
  select author , Title,count(title) from books group by author ,title ;
  
  # Write a stored procedure to update a member's phone number based on the MemberID and the new phone number.
+  
  delimiter  $$
  create procedure update_phone (in id  int ,phone bigint )
  begin
@@ -287,19 +298,21 @@ delimiter ;
  
 
 #Write a SQL query to generate a report of the most borrowed books. Include the book title and the number of times it has been borrowed, sorted by the highest number of borrowings.
-SELECT Books.Title, COUNT(BorrowingRecords.BookID) AS BorrowCount
-FROM BorrowingRecords
-JOIN Books ON BorrowingRecords.BookID = Books.BookID
-GROUP BY Books.Title
-ORDER BY BorrowCount DESC
-LIMIT 5;
+select books.title, count(borrowingrecords.bookid) as borrowcount  
+from borrowingrecords  
+join books on borrowingrecords.bookid = books.bookid  
+group by books.title  
+order by borrowcount desc  
+limit 5;  
 
 
-#join query 
-select title,author ,stock,borrowdate,name ,email  
-from books inner join borrowingrecords on books.bookid= borrowingrecords.RecordID
- inner join members on
- books.BookID=members.MemberID;
+
+
+
+
+
+
+
 
 
 
@@ -342,43 +355,38 @@ DELIMITER ;
 
 
 #. Stored Procedure to Issue a Book (Borrowing a Book)
-DELIMITER //
-CREATE PROCEDURE IssueBookwithmsg(
-    IN p_BookID INT,
-    IN p_MemberID INT,
-    IN p_BorrowDate DATE,
-    IN p_ReturnDate DATE,
-    OUT p_Message VARCHAR(255)
+delimiter //
+create procedure issuebookwithmsg(
+    in p_bookid int,
+    in p_memberid int,
+    in p_borrowdate date,
+    in p_returndate date,
+    out p_message varchar(255)
 )
-BEGIN
-    DECLARE v_Stock INT;
+begin
+    declare v_stock int;
 
-    -- Check if book is available
-    SELECT Stock INTO v_Stock FROM Books WHERE BookID = p_BookID;
+    -- check if book is available
+    select stock into v_stock from books where bookid = p_bookid;
 
-    IF v_Stock > 0 THEN
-        -- Insert into BorrowingRecords
-        INSERT INTO BorrowingRecords (BookID, MemberID, BorrowDate, ReturnDate) 
-        VALUES (p_BookID, p_MemberID, p_BorrowDate, p_ReturnDate);
+    if v_stock > 0 then
+        -- insert into borrowingrecords
+        insert into borrowingrecords (bookid, memberid, borrowdate, returndate) 
+        values (p_bookid, p_memberid, p_borrowdate, p_returndate);
         
-        -- Decrease stock
-        UPDATE Books SET Stock = Stock - 1 WHERE BookID = p_BookID;
+        -- decrease stock
+        update books set stock = stock - 1 where bookid = p_bookid;
 
-        -- Success message
-        SET p_Message = 'Book issued successfully';
-    ELSE
-        -- Message instead of an error
-        SET p_Message = 'Book is out of stock';
-    END IF;
-END //
-DELIMITER ;
+        -- success message
+        set p_message = 'book issued successfully';
+    else
+        -- message instead of an error
+        set p_message = 'book is out of stock';
+    end if;
+end //
+delimiter ;
 
-CALL IssueBookwithmsg(1, 5, '2025-03-01', '2025-03-15');
-
-
-
-
-
-
+call issuebookwithmsg(1, 5, '2025-03-01', '2025-03-15', @message);
+select @message;
 
 
